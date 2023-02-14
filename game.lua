@@ -2307,10 +2307,15 @@ function game_draw()
 			love.graphics.setLineWidth(.5*scale)
 			for i, v in pairs(objects) do
 				for j, k in pairs(v) do
-					if k.width then
+					if k.width and not k.nodebug then
 						if xscroll >= k.x-width and k.x+k.width > xscroll then
-							if k.active and not k.red then
+							if k.hitboxcolor then
+								love.graphics.setColor(unpack(k.hitboxcolor))
+							elseif k.active then
 								love.graphics.setColor(255, 255, 255)
+								if i == "player" then
+									love.graphics.setColor(0, 255, 0)
+								end
 							else
 								love.graphics.setColor(255, 0, 0)
 							end
@@ -2362,13 +2367,13 @@ function game_draw()
 								love.graphics.rectangle("line", math.floor((k.x+k.blowrange[1]-xscroll)*16*scale)+.5, math.floor((k.y+k.blowrange[2]-yscroll-.5)*16*scale)+.5, k.blowrange[3]*16*scale-1, k.blowrange[4]*16*scale-1)
 							end
 
-							--[[if k.pointingangle then
+							if k.pointingangle then
 								local xcenter = k.x + 6/16 - math.sin(k.pointingangle)*userange
 								local ycenter = k.y + 6/16 - math.cos(k.pointingangle)*userange
 							
 								love.graphics.setColor(0, 255, 255)
 								love.graphics.rectangle("line", math.floor((xcenter-usesquaresize/2-xscroll)*16*scale)+.5, math.floor((ycenter-usesquaresize/2-yscroll-.5)*16*scale)+.5, usesquaresize*16*scale-1, usesquaresize*16*scale-1)
-							end]]
+							end
 						end
 					end
 				end
@@ -2400,6 +2405,24 @@ function game_draw()
 						x, y = x + 8*(max+1), 2
 					end
 				end
+			else --debug text
+				love.graphics.setColor(255, 255, 255)
+				properprint("speedx:" .. objects["player"][1].speedx, 2*scale, 25*scale)
+				properprint("speedy:" .. objects["player"][1].speedy, 2*scale, 35*scale)
+				if objects["player"][1].falling then
+					properprint("falling: true", 2*scale, 45*scale)
+				else
+					properprint("falling: false", 2*scale, 45*scale)
+				end
+				if objects["player"][1].jumping then
+					properprint("jumping: true", 2*scale, 55*scale)
+				else
+					properprint("jumping: false", 2*scale, 55*scale)
+				end
+				properprint(#objects["enemy"], 2*scale, 85*scale)
+				properprint("x:" .. objects["player"][1].x, 2*scale, 65*scale)
+				properprint("y:" .. objects["player"][1].y, 2*scale, 75*scale)
+				properprint(tostring(mariolives[1]) .. " lives", 2*scale, 95*scale)
 			end
 		end
 
