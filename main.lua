@@ -1910,6 +1910,44 @@ function love.keypressed(key, scancode, isrepeat, textinput)
 		showfps = not showfps
 	elseif key == "f12" then
 		love.mouse.setGrabbed(not love.mouse.isGrabbed())
+	elseif key == "f9" then
+		vsync = not vsync
+		changescale(scale)
+	elseif key == "f8" then
+		if editormode then
+			savecustomimage(true)
+			notice.new("reloaded custom characters", notice.white, 2)
+		end
+		loadcustomplayers()
+		for i = 1, #mariocharacter do
+			if mariocharacter[i] then
+				setcustomplayer(mariocharacter[i], i, "initial")
+			end
+		end
+	elseif key == "." and love.keyboard.isDown("lalt") and scale < 4 then
+		changescale(scale+1)
+		if gamestate == "game" then
+			updatespritebatch()
+		end
+	elseif key == "," and love.keyboard.isDown("lalt") and scale > 1 then
+		changescale(scale-1)
+		if gamestate == "game" then
+			updatespritebatch()
+		end
+	elseif key == "1" then -- enemies in existance
+		if gamestate == "game" then
+			local out = {}
+			for _, j in pairs(objects["enemy"]) do
+				out[j.t] = (out[j.t] or 0)+1
+			end
+			print(out)
+		end
+	elseif key == "q" and not editormode and gamestate == "game" then
+		if love.keyboard.isDown("lalt") then
+			frameadvance = false
+		else
+			frameadvance = 2
+		end
 	end
 	
 	if gamestate == "menu" or gamestate == "mappackmenu" or gamestate == "onlinemenu" or gamestate == "lobby" or gamestate == "options" then
@@ -2326,6 +2364,79 @@ function tablecontainsistring(t, entry)
 		end
 	end
 	return false
+end
+
+old_print = print
+function print(...)
+	local vals = {...}
+	local outvals = {}
+	for i, t in pairs(vals) do
+		if type(t) == "table" then
+			outvals[i] = tabletostring(t, 3)
+		elseif type(t) == "function" then
+			outvals[i] = "function"
+		elseif t == nil then
+			outvals[i] = "nil"
+		else
+			outvals[i] = tostring(t)
+		end
+	end
+	old_print(unpack(outvals))
+end
+function infoprint(t, depth, lines)
+	if type(t) == "table" then
+		old_print(tabletostring(t, depth, lines))
+	elseif type(t) == "function" then
+		old_print("function")
+	elseif t == nil then
+		old_print("nil")
+	else
+		old_print(tostring(t))
+	end
+end
+
+function tabletostring(t, depth, lines)
+	local array = true
+	local ai = 0
+	local outtable = {}
+	for i, v in pairs(t) do
+		if type(v) == "table" then
+			if depth > 1 then
+				outtable[i] = tabletostring(v, depth-1)
+			else
+				outtable[i] = tostring(v)
+			end
+		elseif type(v) == "function" then
+			outtable[i] = "function"
+		elseif t == nil then
+			outvals[i] = "nil"
+		else
+			outtable[i] = tostring(v)
+		end
+
+		ai = ai + 1
+		if t[ai] == nil then
+			array = false
+		end
+	end
+	local out = ""
+	if array then
+		if not lines then
+			out = "[" .. table.concat(outtable,",") .. "]"
+		else
+			out = "[" .. table.concat(outtable,",\n") .. "]"
+		end
+	else
+		for i, v in pairs(outtable) do
+			if not lines then
+				out = string.format("%s%s: %s, ", out, i, v)
+			else
+				out = string.format("%s%s: %s,\n", out, i, v)
+			end
+		end
+		out = "{" .. out .. "}"
+	end
+	return out
 end
 
 function getaveragecolor(imgdata, cox, coy)
