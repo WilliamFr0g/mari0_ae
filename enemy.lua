@@ -2317,9 +2317,32 @@ function enemy:update(dt)
 	if self.customtimer then
 		--[delay, [action, parameter], argument]
 		self.customtimertimer = self.customtimertimer + dt
+		local ln
 		while self.customtimertimer > self.customtimer[self.currentcustomtimerstage][1] do
+			ln = self.customtimer[self.currentcustomtimerstage]
 			self.customtimertimer = self.customtimertimer - self.customtimer[self.currentcustomtimerstage][1]
-			self:customtimeraction(self.customtimer[self.currentcustomtimerstage][2], self.customtimer[self.currentcustomtimerstage][3], self.customtimer[self.currentcustomtimerstage][4])
+			local yay, sad = xpcall(function(a, b, c) self:customtimeraction(a, b, c) end, function()
+				print("\n===========you dun goofed===========")
+				print("\n-----crime scene-----")
+				print(self.customtimer[self.currentcustomtimerstage-1])
+				print(self.customtimer[self.currentcustomtimerstage], "<-- screw up location")
+				print(self.customtimer[self.currentcustomtimerstage+1],"\n")
+				print(string.format("enemy name is \"%s\", line number is %s", self.t, self.currentcustomtimerstage))
+				if type(ln[2]) == "table" then
+					print(string.format("also property \"%s\" was %s", ln[2][2], self[ln[2][2]]))
+					local arg = ln[3]
+					if arg and type(arg) == "table" and arg[1] and arg[2] and arg[1] == "property" then
+						print(string.format("and value \"%s\" was %s", arg[2], self[arg[2]]))
+					end
+				else
+					print(string.format("and value \"%s\" was %s", ln[3], self[ln[3]]))
+					if ln[2] == "setframe" then
+						print(string.format("also quadgroup was %s, that's probably bad", self[ln[2]]))
+					end
+				end
+				print("\n-----the error-----")
+				love.errhand(localnick .. " you buffoon, you had a timer error")
+			end, ln[2], ln[3], ln[4]) --book
 			self.currentcustomtimerstage = self.currentcustomtimerstage + 1
 			if self.currentcustomtimerstage > #self.customtimer then
 				self.currentcustomtimerstage = 1
@@ -2524,6 +2547,8 @@ function enemy:customtimeraction(action, arg, arg2)
 			self[p] = tonumber(self[p])
 		elseif a == "tostring" then
 			self[p] = tostring(self[p])
+		elseif a == "print" then
+			print(self[p])
 		elseif a == "concat" then
 			self[p] = self[p] .. arg
 
@@ -2568,7 +2593,7 @@ function enemy:customtimeraction(action, arg, arg2)
 			self[parameter] = self[parameter] * arg
 		elseif action == "setframe" then
 			self.quad = self.quadgroup[arg]
-		elseif LoveConsole and action == "print" then --only for advanced users!
+		elseif action == "print" then --only for advanced users!
 			if self[arg] then
 				print(self[arg])
 			else
