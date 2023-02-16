@@ -7469,8 +7469,8 @@ function opencustomimagefolder(f)
 		love.system.openURL("file://" .. love.filesystem.getSaveDirectory() .. "/" .. mappackfolder .. "/" .. mappack .. "/enemies")
 	end
 end
-function savecustomimage()
-	if customtabstate == "graphics" then
+function savecustomimage(reloadall)
+	if customtabstate == "graphics" or reloadall then
 		loadcustomsprites()
 		for i = 1, #smbspritebatch do
 			smbspritebatch[i]:setTexture(smbtilesimg)
@@ -7478,7 +7478,8 @@ function savecustomimage()
 		end
 		collectgarbage()
 		notice.new("Updated sprites", notice.white, 2)
-	elseif customtabstate == "tiles" then
+	end
+	if customtabstate == "tiles" or reloadall then
 		if love.filesystem.exists(mappackfolder .. "/" .. mappack .. "/tiles.png") then
 			--remove custom sprites
 			for i = smbtilecount+portaltilecount+1, #tilequads do
@@ -7511,14 +7512,16 @@ function savecustomimage()
 			loadanimatedtiles()
 			notice.new("Updated animated tiles", notice.white, 2)
 		end
-	elseif customtabstate == "backgrounds" then
+	end
+	if customtabstate == "backgrounds" or reloadall then
 		if editorbackgroundstate == "foreground" then
 			loadcustomforeground(customforeground)
 		else
 			loadcustombackground(custombackground)
 		end
 		notice.new("Loaded background", notice.white, 2)
-	elseif customtabstate == "sounds" then
+	end
+	if customtabstate == "sounds" or reloadall then
 		loadcustomsounds()
 		loadcustommusic()
 		guielements["musicdropdown"].entries = editormusictable
