@@ -2302,7 +2302,7 @@ function game_draw()
 		end
 		
 		--draw collision (debug)
-		if HITBOXDEBUG and (editormode or testlevel) then
+		if HITBOXDEBUG then
 			local lw = love.graphics.getLineWidth()
 			love.graphics.setLineWidth(.5*scale)
 			for i, v in pairs(objects) do
