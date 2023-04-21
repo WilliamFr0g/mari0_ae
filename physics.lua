@@ -80,7 +80,7 @@ function physicsupdate(dt)
 								v.speedx = math.max(-maxyspeed, v.speedx)
 							elseif v.gravitydir == "left" then
 								v.speedx = v.speedx - (v.gravity or yacceleration)*dt
-								v.speedy = math.min(maxyspeed, v.speedx)
+								v.speedx = math.min(maxyspeed, v.speedx)
 							else
 								v.speedy = v.speedy + (v.gravity or yacceleration)*dt
 								v.speedy = math.min(maxyspeed, v.speedy)
@@ -151,11 +151,12 @@ function physicsupdate(dt)
 					end
 					
 					--VS TILES (Because I only wanna check close ones)
-					local xstart = math.floor(v.x+v.speedx*dt-2/16)+1
-					local ystart = math.floor(v.y+v.speedy*dt-2/16)+1
+					local xstart = math.ceil(v.x+v.speedx*dt)
+					local ystart = math.ceil(v.y+v.speedy*dt)
 					
 					local xfrom = xstart
-					local xto = xstart+math.ceil(v.width+0.0001)
+					local xto = math.floor(v.x+v.width+v.speedx*dt)+1
+					local yto = math.floor(v.y+v.height+v.speedy*dt)+1
 					local dir = 1
 					
 					if v.speedx < 0 then
@@ -163,7 +164,7 @@ function physicsupdate(dt)
 						dir = -1
 					end
 					for x = xfrom, xto, dir do
-						for y = ystart, ystart+math.ceil(v.height+0.0001) do
+						for y = ystart, yto do
 							--check if invisible block
 							if inmap(x, y) and ((not tilequads[map[x][y][1]]:getproperty("invisible", x, y)) or j == "player") then
 								local t = lobjects["tile"][tilemap(x, y)]
@@ -372,9 +373,11 @@ function physicsupdate(dt)
 						end
 						if v.gravity then
 							if v.startfall then
-								if v.gravitydir then
-									if (v.gravitydir == "right" and v.speedx == oldspeedx + v.gravity*dt) or (v.gravitydir == "left" and v.speedx == oldspeedx - v.gravity*dt) then
-										v:startfall(i)
+								if (not (v.stopjump and v.jumping)) and (not v.quicksand) then
+									if v.gravitydir then
+										if (v.gravitydir == "right" and v.speedx == oldspeedx + v.gravity*dt) or (v.gravitydir == "left" and v.speedx == oldspeedx - v.gravity*dt) then
+											v:startfall(i)
+										end
 									end
 								end
 							end
