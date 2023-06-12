@@ -3820,9 +3820,15 @@ end
 
 function createnewanimation(name,dont_generate_gui)
 	local s = {}
-	s.triggers = {}
-	s.conditions = {}
-	s.actions = {}
+	if love.keyboard.isDown("lshift") then
+		s.triggers = animations[currentanimation].triggers
+		s.conditions = animations[currentanimation].conditions
+		s.actions = animations[currentanimation].actions
+	else
+		s.triggers = {}
+		s.conditions = {}
+		s.actions = {}
+	end
 	
 	if not name then
 		local i = 1
