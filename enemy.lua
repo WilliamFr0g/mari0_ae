@@ -121,6 +121,20 @@ local function ct_ton(self, ln) self[ln.p] = tonumber(self[ln.p]) end
 local function ct_tos(self, ln) self[ln.p] = tostring(self[ln.p]) end
 local function ct_cat(self, ln) self[ln.p] = self[ln.p] .. ln.a end
  local function ct_cat_p(self, ln) self[ln.p] = self[ln.p] .. self[ln.a] end
+ local function ct_split(self, ln) 
+	if (type(self[ln.p]) == "string" or tostring(self[ln.p])) then
+		local str = tostring(self[ln.p])
+		if not ln.a then
+			-- split every character,. i f##king hate this but i couldn't find a cleaner way to do it.
+			self[ln.p] = {}
+			for i = 1, #str do
+				table.insert(self[ln.p], string.sub(str, i, i))
+			end
+		elseif (type(ln.a) == "string" or tostring(ln.a)) then
+			self[ln.p] = str:split(tostring(ln.a))
+		end
+	end
+ end
 local function ct_sound(self, ln) self:playsound(ln.a) end
  local function ct_sound_p(self, ln) self:playsound(self[ln.a]) end
 
@@ -394,6 +408,10 @@ function enemy:init(x, y, t, a, properties)
 						ln.p = p
 					elseif a == "concat" then
 						ln.func = (property and ct_cat_p) or ct_cat
+						ln.p = p
+						ln.a = arg
+					elseif a == "split" then
+						ln.func = ct_split
 						ln.p = p
 						ln.a = arg
 					elseif a == "if" then
@@ -2742,6 +2760,19 @@ function enemy:customtimeraction(action, arg, arg2)
 			self[p] = tostring(self[p])
 		elseif a == "concat" then
 			self[p] = self[p] .. arg
+		elseif a == "split" then
+			if (type(self[p]) == "string" or tostring(self[p])) then
+				local str = tostring(self[p])
+				if not arg then
+					-- split every character,. i f##king hate this but i couldn't find a cleaner way to do it.
+					self[p] = {}
+					for i = 1, #str do
+						table.insert(self[p], string.sub(str, i, i))
+					end
+				elseif (type(arg) == "string" or tostring(arg)) then
+					self[p] = str:split(tostring(arg))
+				end
+			end
 
 		elseif a == "if" then
 			self:ifstatement(action, ogarg, ogarg2)
