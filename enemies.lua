@@ -366,11 +366,11 @@ end
 function loadenemyimage(filename, s)
 	--Load graphics
 	local img = love.graphics.newImage(filename)
-	if string.sub(filename, -9):lower() == "-icon.png" then
+	if string.sub(filename, -9):lower() == "-icon.png" then --Icon
 		enemiesdata[s].icongraphic = img
-	elseif string.sub(filename, -12):lower() == "-tooltip.png" then
+	elseif string.sub(filename, -12):lower() == "-tooltip.png" then --Tooltip
 		enemiesdata[s].tooltipgraphic = img
-	else
+	elseif string.sub(filename, -string.len(s)-4, -5) == s then --Main image
 		enemiesdata[s].graphic = img
 
 		if enemiesdata[s].quadcount then
