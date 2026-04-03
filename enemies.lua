@@ -370,7 +370,7 @@ function loadenemyimage(filename, s)
 		enemiesdata[s].icongraphic = img
 	elseif string.sub(filename, -12):lower() == "-tooltip.png" then --Tooltip
 		enemiesdata[s].tooltipgraphic = img
-	elseif string.sub(filename, -string.len(s)-4, -5) == s then --Main image
+	elseif string.sub(filename, -string.len(s)-4, -5):lower() == s then --Main image
 		enemiesdata[s].graphic = img
 
 		if enemiesdata[s].quadcount then
